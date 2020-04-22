@@ -1,0 +1,15 @@
+{
+  "name": "d5a0755e287f25df6db6a9d6b64be38d069f90474b89f7e5ef8498ab289b2ac8",
+  "version": "1.0.0",
+  "description": "## Install Backend",
+  "main": "init.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "path": "^0.12.7",
+    "sqlite3": "^4.0.6"
+  }
+}
