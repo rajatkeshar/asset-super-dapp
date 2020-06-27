@@ -16,6 +16,7 @@ module.exports = {
 				},
 				body: JSON.stringify(payload)
 			};
+			console.log("options: ", options);
 			function callback(error, response, body) {
 				if(error) return reject(error);
 				try {

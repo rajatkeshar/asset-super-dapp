@@ -24,15 +24,29 @@ app.route.post('/user/exists',async function(req,cb){
     }
     return "0";
 });
+
 app.route.post('/user/login', async function (req, cb) {
-    var params = {
-        email: req.query.email,
-        password: req.query.password,
-        totp:req.query.totp
-    };
-    var response = await SwaggerCall.call('POST', '/api/v1/login', params);//staging api
-    return response;
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
+    var params = {email: req.query.email};
+    var superuserInfo = await app.model.Mapping.findOne({condition: {role: "superuser"}});
+    let dappId = superuserInfo.dappid;
+    var member = await dappCall.call('POST', '/api/dapps/'+dappId+'/query/member/exists', params);
+    let mapping = await app.model.Mapping.exists(params);
+    let exists = member.exists || mapping;
+    if(exists) {
+      var params = {
+          email: req.query.email,
+          password: req.query.password,
+          totp:req.query.totp
+      };
+      var response = await SwaggerCall.call('POST', '/api/v1/login', params);//staging api
+      return response;
+    } else {
+        member.message = "user does not exists"
+        return member;
+    }
 });
+
 app.route.post('/user/signup', async function (req, cb) {
     var params = {
             countryCode: req.query.countryCode,
@@ -50,7 +64,7 @@ app.route.post('/user/signup', async function (req, cb) {
 
 app.route.post('/user/hllogin',async function(req,cb){
 var params={
-    secret:req.query.secret  
+    secret:req.query.secret
 };
 var token=req.query.token;
 var response= await hlCall.call('POST','/api/v1/hyperledger/login',params,token);
@@ -85,7 +99,7 @@ app.route.post('/user/dappid',async function(req,cb){
         limit: req.query.limit,
         offset: req.query.offset
     });
-    
+
 
     for(i in result){
         var company = await app.model.Company.findOne({
@@ -96,7 +110,7 @@ app.route.post('/user/dappid',async function(req,cb){
         result[i] = Object.assign(result[i], company);
     }
     return result;
-    
+
 });
 app.route.post('/user/wallet',async function(req,cb){
     var token=req.query.token

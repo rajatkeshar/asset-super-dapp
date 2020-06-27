@@ -54,6 +54,7 @@ app.route.post('/user/getDappsByAddress', async function(req, cb){
 });
 
 app.route.post('/mapUser', async function(req, cb){
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     var mapping = await app.model.Mapping.findOne({
         condition: {
             email: req.query.email,
@@ -84,7 +85,7 @@ function getRandomString() {
     var text = "";
     var caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     var smalls = "abcdefghijklmnopqrstuvwxyz";
-    
+
     for (var i = 0; i < 4; i++){
         text += caps.charAt(Math.floor(Math.random() * caps.length));
         text += smalls.charAt(Math.floor(Math.random() * smalls.length));
@@ -95,10 +96,10 @@ function getRandomString() {
 module.exports.registerDapp = async function (req, res) {
     console.log("Entering dapp registration");
     app.logger.log("******** Entering dapp registration ********");
-    
+
     var randomText = getRandomString();
     randomText += ".zip";
-    
+
     var link = links.centralServer + "/sendzip/" + randomText;
     if(req.query.assetType) link = links.centralServer + "/sendzip2/" + randomText;
     var dapp_params = {
@@ -121,9 +122,9 @@ module.exports.registerDapp = async function (req, res) {
     };
     console.log(JSON.stringify(dapp_params));
     var response = await dappCall.call('PUT', `/api/dapps`, dapp_params);
-    
+
     if(!response.success) return response;
-    
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     var email=req.query.email;
     var company=req.query.company;
     var name=req.query.name;
@@ -154,6 +155,7 @@ module.exports.registerDapp = async function (req, res) {
 }
 
 async function setIssueLimit(req){
+    console.log("calling setIssueLimit:", req);
     if(!req.query.centralServerKey) return {
         isSuccess: false,
         message: "Need to provide the centralServerKey, issue limit not updated."
@@ -161,7 +163,7 @@ async function setIssueLimit(req){
     if(!util.centralServerCheck(req.query.centralServerKey)) return {
         isSuccess: false,
         message: "Central Server authentication failed, issue limit not updated."
-    }         
+    }
     if(!req.query.email) return {
         isSuccess: false,
         message: "Need to provide the superuser's email"
@@ -188,7 +190,7 @@ async function setIssueLimit(req){
         isSuccess: false,
         message: "Email is not a superuser"
     }
-    var response = await dappCall.call('POST', `/api/dapps/` + emailMapping.dappid + `/centralserver/addIssuelimits`, req.query);
+    var response = await dappCall.call('POST', `/api/dapps/` + req.query.dappId + `/centralserver/addIssuelimits`, req.query);
     if(!response) return {
         isSuccess: false,
         message: "Could not connect to the DApp, status not updated"
@@ -201,7 +203,7 @@ app.route.post("/centralserver/addIssuelimits", setIssueLimit);
 module.exports.installDapp = async function (req, res) {
     console.log("Entering dapp install");
     app.logger.log("******* Entering dapp install ********");
-    
+
     var dappid=req.query.id;
     var install_params={
         id:dappid,
@@ -213,7 +215,7 @@ module.exports.installDapp = async function (req, res) {
 module.exports.launchDapp = async function (req, res) {
     console.log("Entering dapp launch");
     app.logger.log("******* Entering dapp launch ********");
-    
+
     var dappid=req.query.id;
     var install_params={
         id:dappid,
@@ -309,7 +311,8 @@ app.route.post('/mockCompany', async function(req, cb){
 })
 
 app.route.post('/removeUsers', async function(req, cb){
-    console.log("Here in SuperDapp remove: " + JSON.stringify(req)); 
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
+    console.log("Here in SuperDapp remove: " + JSON.stringify(req));
     app.sdb.del('mapping', {
         email: req.query.email
     });
@@ -349,7 +352,7 @@ app.route.post('/removeUsers', async function(req, cb){
      response.assetType = company.assetType;
 
      return response;
-     
+
  })
 
  app.route.post('/generatePayslipLink', async function(req, cb){
@@ -442,7 +445,7 @@ app.route.post('/removeUsers', async function(req, cb){
      }
 
      var charge = await getCharge(dapp);
-    
+
      return {
          isSuccess: true,
          verificationFee: verificationFee.fee,
@@ -515,7 +518,7 @@ app.route.post('/removeUsers', async function(req, cb){
         });
     } else if(req.query.country){
         create.country = req.query.country;
-        
+
         find = await app.model.Ctm.findOne({
             condition: create
         });

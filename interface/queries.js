@@ -1,7 +1,7 @@
 var dappCall = require("../utils/dappCall");
 
 app.route.post('/user/dappid2', async function(req){
-
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     var isNewUser = await app.model.Mapping.exists({
         email: req.query.email
     })
@@ -35,7 +35,7 @@ app.route.post('/user/dappid2', async function(req){
             });
         });
     });
-    
+
     var dapps = await new Promise((resolve)=>{
         let sql = `select mappings.dappid, mappings.role, companys.company, companys.name, companys.assetType from mappings join companys on companys.dappid = mappings.dappid where mappings.email = ? and mappings._deleted_ = 0 order by mappings.timestampp desc limit ? offset ?;`;
         app.sideChainDatabase.all(sql, [req.query.email, req.query.limit || 20, req.query.offset || 0], (err, row)=>{
@@ -85,7 +85,7 @@ app.route.post('/user/getDappsByAddress2', async function(req){
             });
         });
     });
-    
+
     var dapps = await new Promise((resolve)=>{
         let sql = `select issueaddrs.dappid, companys.company, companys.assetType from issueaddrs join companys on companys.dappid = issueaddrs.dappid where issueaddrs.address = ? and issueaddrs.deleted = '0' order by issueaddrs.timestampp desc limit ? offset ?;`;
         app.sideChainDatabase.all(sql, [req.query.address, req.query.limit || 20, req.query.offset || 0], (err, row)=>{
@@ -124,7 +124,7 @@ app.route.post('/allAssetTypes', async function(req) {
             });
         });
     });
-    
+
     var dapps = await new Promise((resolve)=>{
         let sql = `select distinct companys.assetType from companys limit ? offset ?;`;
         app.sideChainDatabase.all(sql, [req.query.limit || 20, req.query.offset || 0], (err, row)=>{
@@ -173,7 +173,7 @@ app.route.post('/user/assetType/dapps', async function(req) {
             });
         });
     });
-    
+
     var dapps = await new Promise((resolve)=>{
         let sql = `select issueaddrs.dappid from issueaddrs join companys on companys.dappid = issueaddrs.dappid and companys.assetType = ? where issueaddrs.address = ? order by issueaddrs.timestampp desc limit ? offset ?;`;
         app.sideChainDatabase.all(sql, [req.query.assetType, req.query.address, req.query.limit || 20, req.query.offset || 0], (err, row)=>{

@@ -38,7 +38,7 @@ app.route.post('/company/data', async function(req, cb){
         role: 'issuer'
     })
 
-    var totalIssued = await dappCall.call('POST', '/api/dapps/' + company.dappid + '/totalCertsIssued', {}) 
+    var totalIssued = await dappCall.call('POST', '/api/dapps/' + company.dappid + '/totalCertsIssued', {})
     if(!totalIssued)
         totalIssued = "Dapp offline"
 
@@ -65,7 +65,7 @@ app.route.post("/admin/assetStatistics", async function(req){
                 result: row
             });
         });
-    }); 
+    });
 
     var allDapps = await app.model.Company.findAll({
         fields: ['dappid']
@@ -102,7 +102,7 @@ app.route.post("/admin/recentlyRegisteredDapps", async function(req){
                 result: row
             });
         });
-    }); 
+    });
 
     dappsRegistered = dappsRegistered.result;
 
@@ -116,7 +116,7 @@ app.route.post("/admin/recentlyRegisteredDapps", async function(req){
         if(!totalIssued || !totalIssued.isSuccess){
             dappsRegistered[i].totalCertificatesIssued = "Dapp Offline";
             continue;
-        } 
+        }
         dappsRegistered[i].totalCertificatesIssued = totalIssued.totalCertificates;
     }
     return {
@@ -139,7 +139,7 @@ app.route.post("/admin/assetSpecificDetails", async function(req){
                 result: row
             });
         });
-    }); 
+    });
 
     assetTypes = assetTypes.result;
 
@@ -191,7 +191,7 @@ app.route.post("/admin/dappsRegistrationOnTimeLine", async function(req){
                 result: row
             });
         });
-    }); 
+    });
     var yesterdayCount = await new Promise((resolve)=>{
         let one = new Date(first.getTime());
         one.setDate(first.getDate()-1);
@@ -208,11 +208,11 @@ app.route.post("/admin/dappsRegistrationOnTimeLine", async function(req){
                 result: row
             });
         });
-    }); 
+    });
     var lastWeekCount = await new Promise((resolve)=>{
         let one = new Date(first.getTime());
         one.setDate(first.getDate()-7);
-        app.sideChainDatabase.get(sql, [one.getTime() ,last.getTime()], (err, row)=>{ 
+        app.sideChainDatabase.get(sql, [one.getTime() ,last.getTime()], (err, row)=>{
             if(err) resolve({
                 isSuccess: false,
                 message: JSON.stringify(err),
@@ -223,11 +223,11 @@ app.route.post("/admin/dappsRegistrationOnTimeLine", async function(req){
                 result: row
             });
         });
-    }); 
+    });
     var lastMonthCount = await new Promise((resolve)=>{
         let one = new Date(first.getTime());
         one.setMonth(first.getMonth()-1);
-        app.sideChainDatabase.get(sql, [one.getTime() ,last.getTime()], (err, row)=>{ 
+        app.sideChainDatabase.get(sql, [one.getTime() ,last.getTime()], (err, row)=>{
             if(err) resolve({
                 isSuccess: false,
                 message: JSON.stringify(err),
@@ -238,7 +238,7 @@ app.route.post("/admin/dappsRegistrationOnTimeLine", async function(req){
                 result: row
             });
         });
-    }); 
+    });
 
     return {
         isSuccess: true,
@@ -263,7 +263,7 @@ app.route.post("/admin/assetsOverviewStatistics", async function(req){
                 result: row
             });
         });
-    }); 
+    });
 
     assetTypes = assetTypes.result
 
@@ -367,7 +367,7 @@ app.route.post('/setPaymentRules', async function(req){
         app.sdb.create('apm', create);
     } else if(req.query.country){
         create.country = req.query.country;
-        
+
         let exists = await app.model.Cpm.exists(create);
         if(exists) return error;
 
@@ -451,7 +451,7 @@ app.route.post("/setTransactionRule", async function(req) {
     var create = {
         deleted: '0'
     }
-    
+
     if(req.query.assetType){
         create.assetType=req.query.assetType;
         create.country = req.query.country || '-';
@@ -469,7 +469,7 @@ app.route.post("/setTransactionRule", async function(req) {
         }
     } else if(req.query.country){
         create.country = req.query.country;
-        
+
         let find = await app.model.Ctm.findOne({
             condition: create
         });
@@ -564,6 +564,7 @@ module.exports.getCharge = async function(dapp){
 }
 
 app.route.post("/admin/add", async function(req){
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     if(!(req.query.name && req.query.role && req.query.email && req.query.password)) return {
         isSuccess: false,
         message: "Details missing"
@@ -727,7 +728,7 @@ app.route.post('/admin/assetType/getDapps', async function(req){
     });
 
     if(!dapps.isSuccess) return dapps;
-    
+
     return {
         isSuccess: true,
         dapps: dapps.result
