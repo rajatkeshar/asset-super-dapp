@@ -7,6 +7,7 @@ var blockWait = require('../utils/blockwait');
 var dappCall = require('../utils/dappCall')
 
 app.route.post('/user/exists',async function(req,cb){
+  req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
   if(req.query.email===undefined) return "invalid input";
     var params={
         email:req.query.email
@@ -48,6 +49,7 @@ app.route.post('/user/login', async function (req, cb) {
 });
 
 app.route.post('/user/signup', async function (req, cb) {
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     var params = {
             countryCode: req.query.countryCode,
             countryId: req.query.countryId,
@@ -72,7 +74,7 @@ return response;
 });
 
 app.route.post('/user/dappid',async function(req,cb){
-
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     var newuser = await app.model.Newuser.exists({
         email: req.query.email
     });
@@ -140,6 +142,7 @@ app.route.post('/user/kycmapping',async function(req,cb){
     return response;
 });
 app.route.post('/rolemapping',async function(req,cb){
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     app.sdb.create('mapping', {
         dappid:req.query.dappid,
         email:req.query.email,
@@ -154,14 +157,15 @@ return result;
 
 //- Retreive username, companyname, from email
 app.route.post('/user/companyname',async function(req,cb){
-var email=req.query.email;
-var res=await app.model.Mapping.findOne({ condition:{email:email},fields:['dappid']});
-var response=await app.model.Company.findOne({condition:{dappid:res.dappid},fields:['company','country','name']
-});
-return response;
+  req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
+  var email=req.query.email;
+  var res=await app.model.Mapping.findOne({ condition:{email:email},fields:['dappid']});
+  var response=await app.model.Company.findOne({condition:{dappid:res.dappid},fields:['company','country','name']});
+  return response;
 });
 
 app.route.post("/dapp/updateDappBalance", async function(req){
+    req.query.email = (req.query.email)? req.query.email.toLowerCase(): null;
     var response = await dappCall.call('PUT', `/api/dapps/transaction`, req.query);
     if(!response.success) return {
         isSuccess: false,
